@@ -1,0 +1,53 @@
+<launch>
+  <arg name="model" default="waffle"/>
+  <arg name="tf_prefix" default="tb3_1"/>
+  <arg name="x" default="0.0"/>
+  <arg name="y" default="0.0"/>
+  <arg name="z" default="0.0"/>
+  <arg name="yaw" default="0.0"/>
+  <arg name="Ts_robot" default="0.5" /><!-- Sampling time -->
+  <arg name="v_max" default="0.26" /><!-- Maximum linear velocity -->
+  <arg name="w_max" default="1.82" /><!-- Maximum angular velocity -->
+  <arg name="tb3_id" default="1"/>
+  <arg name="map_resolution" default="0.05" /><!-- Delta r -->
+  <arg name="increment" default="12" /><!-- R / (Delta r) -->
+  <arg name="inflate_radius" default="0.1" /><!-- R_F -->
+  <arg name="min_distance" default="0.01" />
+  <arg name="lidar_update_rate" default="2" /><!-- Ts^-1 -->
+  <arg name="number_tb3s" default="1" />
+
+  <!--
+    Changed code in turtlebot3_description files because they didn't support the robot_namespace parameter
+    (find turtlebot3_description)/urdf/turtlebot3_waffle.urdf.xacro
+    (find turtlebot3_description)/urdf/turtlebot3_waffle.gazebo.xacro
+
+    See: https://github.com/open-rmf/free_fleet/issues/60#issuecomment-920665293
+  -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find gridbased_dmpc)/urdf/turtlebot3_$(arg model).urdf.xacro' lidar_update_rate:=$(arg lidar_update_rate) robot_namespace:=$(arg tf_prefix)" />
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher_$(arg tf_prefix)" output="screen">
+    <param name="publish_frequency" type="double" value="1.0" />
+    <param name="tf_prefix" value="$(arg tf_prefix)" />
+  </node>
+  <node name="spawn_urdf_$(arg tf_prefix)" pkg="gazebo_ros" respawn="false" type="spawn_model" args="-urdf -model $(arg tf_prefix)
+        -x $(arg x) -y $(arg y) -z $(arg z) -Y $(arg yaw) -param robot_description -robot_namespace $(arg tf_prefix)">
+  </node>
+  <node name="map_$(arg tf_prefix)_odom_tf" pkg="tf" type="static_transform_publisher" args="0 0 0.1 0 0 0 1 map $(arg tf_prefix)/odom 1"/>
+
+  <node pkg="gridbased_dmpc" type="local_gb_mpc.py" name="local_gb_mpc">
+    <param name="min_distance" value="$(arg min_distance)" />
+    <param name="Ts_robot" value="$(arg Ts_robot)" />
+    <param name="v_max" value="$(arg v_max)" />
+    <param name="w_max" value="$(arg w_max)" />
+    <param name="tb3_id" value="$(arg tb3_id)" />
+    <param name="increment" value="$(arg increment)" />
+    <param name="map_resolution" value="$(arg map_resolution)" />
+  </node>
+  <node pkg="gridbased_dmpc" type="local_planner.py" name="local_planner">
+    <param name="increment" value="$(arg increment)" />
+    <param name="min_distance" value="$(arg min_distance)" />
+    <param name="Ts_robot" value="$(arg Ts_robot)" />
+    <param name="number_tb3s" value="$(arg number_tb3s)" />
+    <param name="tb3_id" value="$(arg tb3_id)" />
+    <param name="inflate_radius" value="$(arg inflate_radius)" />
+  </node>
+</launch>

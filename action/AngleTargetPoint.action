@@ -1,0 +1,9 @@
+# Define the the current waypoint
+geometry_msgs/Vector3 waypoint
+float32 angle
+---
+# Define the result
+string result
+---
+# Define a feedback message
+string state

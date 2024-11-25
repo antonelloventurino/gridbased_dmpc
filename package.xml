@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>gridbased_dmpc</name>
+  <version>1.0.0</version>
+  <description>A ROS and Gazebo simulation package for distributed control of TurtleBot3 robots in industrial environments.</description>
+  <maintainer email="posta@antonelloventurino.me">Antonello Venturino</maintainer>
+  <license>BSD 3-Clause</license>
+  <url type="website">http://antonelloventurino.me</url>
+  <author email="posta@antonelloventurino.me">Antonello Venturino</author>
+  <depend>rospy</depend>
+  <build_depend>message_generation</build_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+  <export>
+    <gazebo>
+      <model_path>${prefix}/models</model_path>
+    </gazebo>
+  </export>
+</package>

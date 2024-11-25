@@ -1,0 +1,107 @@
+<launch>
+  <arg name="gui" default="true"/>
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find gridbased_dmpc)/worlds/industry.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+  <arg name="model" default="waffle"/>
+  <arg name="number_tb3s" value="3"/>
+
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find gridbased_dmpc)/maps/map.yaml" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find gridbased_dmpc)/rviz/multi_tb3.rviz"/>
+
+  <arg name="Ts_robot" default="0.5" /><!-- Sampling time -->
+  <arg name="lidar_update_rate" default="2" /><!-- Ts^-1 -->
+  <arg name="v_max" default="0.26" /><!-- Maximum linear velocity -->
+  <arg name="w_max" default="1.82" /><!-- Maximum angular velocity -->
+  <arg name="inflate_radius" default="0.1" /><!-- R_F -->
+  <arg name="map_resolution" default="0.05" /><!-- Delta r -->
+  <arg name="increment" default="12" /><!-- R / (Delta r) -->
+  <arg name="min_distance" default="0.01" />
+  <arg name="fq_update_global_path" default="0.5" /><!-- f_{GP} -->
+  <arg name="fs_scheduler" default="0.5" /><!-- f_{Sc} -->
+  <node pkg="gridbased_dmpc" type="global_planner.py" name="global_planner">
+    <param name="min_distance" value="$(arg min_distance)" />
+    <param name="fq_update_global_path" value="$(arg fq_update_global_path)" />
+    <param name="increment" value="$(arg increment)" />
+    <param name="number_tb3s" value="$(arg number_tb3s)" />
+    <param name="inflate_radius" value="$(arg inflate_radius)" />
+  </node>
+  <node pkg="gridbased_dmpc" type="offline_set_computation.py" name="offline_set_computation">
+    <param name="increment" value="$(arg increment)" />
+    <param name="map_resolution" value="$(arg map_resolution)" />
+    <param name="min_distance" value="$(arg min_distance)" />
+    <param name="Ts_robot" value="$(arg Ts_robot)" />
+    <param name="v_max" value="$(arg v_max)"/>
+    <param name="w_max" value="$(arg w_max)"/>
+  </node>
+  <node pkg="gridbased_dmpc" type="fake_scheduler.py" name="scheduler">
+    <param name="number_tb3s" value="$(arg number_tb3s)" />
+    <param name="fs_scheduler" value="$(arg fs_scheduler)" />
+  </node>
+  <group ns="tb3_1">
+    <include file="$(find gridbased_dmpc)/launch/tb3_sim.launch">
+      <arg name="model" value="$(arg model)"/>
+      <arg name="tb3_id" value="1"/>
+      <arg name="tf_prefix" value="tb3_1"/>
+      <arg name="x" value="0.0"/>
+      <arg name="y" value="0.0"/>
+      <arg name="z" value="0.0"/>
+      <arg name="yaw" value="0"/>
+      <arg name="min_distance" value="$(arg min_distance)"/>
+      <arg name="increment" value="$(arg increment)" />
+      <arg name="Ts_robot" value="$(arg Ts_robot)"/>
+      <arg name="lidar_update_rate" value="$(arg lidar_update_rate)"/>
+      <arg name="v_max" value="$(arg v_max)"/>
+      <arg name="w_max" value="$(arg w_max)"/>
+      <arg name="map_resolution" value="$(arg map_resolution)" />
+      <arg name="number_tb3s" value="$(arg number_tb3s)" />
+      <arg name="inflate_radius" value="$(arg inflate_radius)" />
+    </include>
+  </group>
+  <group ns="tb3_2">
+    <include file="$(find gridbased_dmpc)/launch/tb3_sim.launch">
+      <arg name="model" value="$(arg model)"/>
+      <arg name="tb3_id" value="2"/>
+      <arg name="tf_prefix" value="tb3_2"/>
+      <arg name="x" value="0.0"/>
+      <arg name="y" value="1.0"/>
+      <arg name="z" value="0.0"/>
+      <arg name="yaw" value="0.0"/>
+      <arg name="min_distance" value="$(arg min_distance)"/>
+      <arg name="increment" value="$(arg increment)" />
+      <arg name="Ts_robot" value="$(arg Ts_robot)"/>
+      <arg name="lidar_update_rate" value="$(arg lidar_update_rate)"/>
+      <arg name="v_max" value="$(arg v_max)"/>
+      <arg name="w_max" value="$(arg w_max)"/>
+      <arg name="map_resolution" value="$(arg map_resolution)" />
+      <arg name="number_tb3s" value="$(arg number_tb3s)" />
+      <arg name="inflate_radius" value="$(arg inflate_radius)" />
+    </include>
+  </group>
+  <group ns="tb3_3">
+    <include file="$(find gridbased_dmpc)/launch/tb3_sim.launch">
+      <arg name="model" value="$(arg model)"/>
+      <arg name="tb3_id" value="3"/>
+      <arg name="tf_prefix" value="tb3_3"/>
+      <arg name="x" value="0.0"/>
+      <arg name="y" value="2.0"/>
+      <arg name="z" value="0.0"/>
+      <arg name="yaw" value="0.0"/>
+      <arg name="min_distance" value="$(arg min_distance)"/>
+      <arg name="increment" value="$(arg increment)" />
+      <arg name="Ts_robot" value="$(arg Ts_robot)"/>
+      <arg name="lidar_update_rate" value="$(arg lidar_update_rate)"/>
+      <arg name="v_max" value="$(arg v_max)"/>
+      <arg name="w_max" value="$(arg w_max)"/>
+      <arg name="map_resolution" value="$(arg map_resolution)" />
+      <arg name="number_tb3s" value="$(arg number_tb3s)" />
+      <arg name="inflate_radius" value="$(arg inflate_radius)" />
+    </include>
+  </group>
+</launch>
