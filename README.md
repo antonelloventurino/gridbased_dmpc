@@ -1,4 +1,4 @@
-# Grid-based Distributed Model Predictive Control for Unicycle Robots
+# Grid-based Distributed Model Predictive Control for Differential Drive/Unicycle Robots
 A ROS and Gazebo simulation package for distributed control of TurtleBot3 robots in industrial environments.
 
 ![](demo.gif)
